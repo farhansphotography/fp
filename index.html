@@ -333,10 +333,8 @@
   }
 
   .portfolio-grid {
-    display: grid;
-    grid-template-columns: repeat(12, 1fr);
-    grid-template-rows: auto;
-    gap: 12px;
+    columns: 3;
+    column-gap: 12px;
   }
 
   .p-item {
@@ -344,15 +342,14 @@
     overflow: hidden;
     cursor: pointer;
     background: var(--dark-3);
+    display: block;
+    width: 100%;
+    break-inside: avoid;
+    margin-bottom: 12px;
   }
 
-  .p-item:nth-child(1) { grid-column: 1/8; grid-row: 1/3; aspect-ratio: 4/3; }
-  .p-item:nth-child(2) { grid-column: 8/13; grid-row: 1; aspect-ratio: 16/9; }
-  .p-item:nth-child(3) { grid-column: 8/10; grid-row: 2; aspect-ratio: 1; }
-  .p-item:nth-child(4) { grid-column: 10/13; grid-row: 2; aspect-ratio: 16/9; }
-  .p-item:nth-child(5) { grid-column: 1/5; grid-row: 3; aspect-ratio: 4/3; }
-  .p-item:nth-child(6) { grid-column: 5/9; grid-row: 3; aspect-ratio: 4/3; }
-  .p-item:nth-child(7) { grid-column: 9/13; grid-row: 3; aspect-ratio: 4/3; }
+  /* Default placeholder box shape (used until a real photo loads and sets its own ratio via JS) */
+  .p-item-inner { aspect-ratio: 4/3; }
 
   .p-item-inner {
     width: 100%;
@@ -377,14 +374,12 @@
     background: var(--dark-4);
   }
 
-  /* Photo placeholders with elegant designs */
-  .p-item:nth-child(1) .p-item-inner { background: linear-gradient(135deg, #1a1510 0%, #0d0a07 100%); }
-  .p-item:nth-child(2) .p-item-inner { background: linear-gradient(135deg, #101518 0%, #07100d 100%); }
-  .p-item:nth-child(3) .p-item-inner { background: linear-gradient(135deg, #15100d 0%, #0a0807 100%); }
-  .p-item:nth-child(4) .p-item-inner { background: linear-gradient(135deg, #111518 0%, #080d12 100%); }
-  .p-item:nth-child(5) .p-item-inner { background: linear-gradient(135deg, #181410 0%, #0d0a07 100%); }
-  .p-item:nth-child(6) .p-item-inner { background: linear-gradient(135deg, #101a14 0%, #07110a 100%); }
-  .p-item:nth-child(7) .p-item-inner { background: linear-gradient(135deg, #181110 0%, #0d0807 100%); }
+  /* Photo placeholders with elegant designs, cycled by category */
+  .p-item[data-category="weddings"] .p-item-inner { background: linear-gradient(135deg, #1a1510 0%, #0d0a07 100%); }
+  .p-item[data-category="portraits"] .p-item-inner { background: linear-gradient(135deg, #101518 0%, #07100d 100%); }
+  .p-item[data-category="commercial"] .p-item-inner { background: linear-gradient(135deg, #15100d 0%, #0a0807 100%); }
+  .p-item[data-category="lifestyle"] .p-item-inner { background: linear-gradient(135deg, #181410 0%, #0d0a07 100%); }
+  .p-item[data-category="events"] .p-item-inner { background: linear-gradient(135deg, #181110 0%, #0d0807 100%); }
 
   .photo-icon {
     position: absolute;
@@ -862,6 +857,50 @@
     .sticky-book-btn { display: block; }
   }
 
+  .scroll-top-btn {
+    position: fixed;
+    bottom: 1.2rem;
+    right: 1.2rem;
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    background: var(--dark-3);
+    border: 1px solid rgba(201,169,110,0.3);
+    color: var(--gold);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 90;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(12px);
+    transition: opacity 0.3s ease, transform 0.3s ease, visibility 0.3s, background 0.3s, border-color 0.3s;
+  }
+
+  .scroll-top-btn.visible {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+  }
+
+  .scroll-top-btn:hover {
+    background: var(--gold);
+    border-color: var(--gold);
+  }
+
+  .scroll-top-btn:hover svg { stroke: var(--dark); }
+
+  .scroll-top-btn svg {
+    width: 18px;
+    height: 18px;
+    stroke: var(--gold);
+    fill: none;
+    stroke-width: 2;
+    transition: stroke 0.3s;
+  }
+
   @keyframes fadeUp {
     from { opacity: 0; transform: translateY(24px); }
     to { opacity: 1; transform: translateY(0); }
@@ -901,13 +940,12 @@
     .nav-links.open { transform: translateX(0); }
     .nav-links a { font-size: 0.9rem; opacity: 1; }
     section { padding: 6rem 1.5rem 4rem; scroll-margin-top: 90px; }
-    .hero { padding: 0 1.5rem; }
+    .hero { padding: 11rem 1.5rem 0; }
     .services-intro { grid-template-columns: 1fr; gap: 2rem; }
     .services-grid { grid-template-columns: 1fr; }
     .testimonials-grid { grid-template-columns: 1fr; }
     .contact-grid { grid-template-columns: 1fr; gap: 3rem; }
-    .portfolio-grid { grid-template-columns: 1fr 1fr; }
-    .p-item { grid-column: auto !important; grid-row: auto !important; aspect-ratio: 4/3 !important; }
+    .portfolio-grid { columns: 2; }
     footer { flex-direction: column; gap: 1.5rem; text-align: center; padding: 2rem 1.5rem; }
     .form-row { grid-template-columns: 1fr; }
     .portfolio-header { flex-direction: column; align-items: flex-start; gap: 1.5rem; }
@@ -919,11 +957,11 @@
     .nav-logo { font-size: 1.15rem; }
     .nav-links { width: 82vw; padding: 0 2rem; }
     section { padding: 5rem 1.2rem 3rem; scroll-margin-top: 80px; }
-    .hero { padding: 0 1.2rem; }
+    .hero { padding: 9.5rem 1.2rem 0; }
     .hero-cta { flex-direction: column; gap: 1rem; }
     .hero-cta a { text-align: center; }
     .btn-primary, .btn-outline { padding: 0.85rem 1.5rem; }
-    .portfolio-grid { grid-template-columns: 1fr; }
+    .portfolio-grid { columns: 1; }
     .category-tabs { gap: 0.4rem; }
     .tab { padding: 0.45rem 1rem; font-size: 0.68rem; }
     .service-card { padding: 1.75rem; }
@@ -946,7 +984,8 @@
   <ul class="nav-links" id="navLinks">
     <li><a href="#portfolio">Portfolio</a></li>
     <li><a href="#services">Services</a></li>
-    <li><a href="client-portal.html">Client Delivery</a></li>
+    <li><a href="about.html">About</a></li>
+    <li><a href="delivery.html">Client Delivery</a></li>
     <li><a href="#contact">Contact</a></li>
   </ul>
   <button class="nav-burger" id="navBurger" aria-label="Toggle menu">
@@ -991,108 +1030,15 @@
     </div>
   </div>
   <!--
-    REAL PHOTOS: drop your files into an "images/portfolio/" folder next to this HTML file,
-    using the filenames referenced below. If a file is missing, the elegant placeholder
-    icon shows instead — so the site never breaks while you're still adding photos.
-    Recommended sizes (match the grid's aspect ratio for the cleanest crop):
-      1. wedding-golden-hour-ceremony.jpg   — 4:3  (e.g. 1200x900)
-      2. portrait-studio-series.jpg         — 16:9 (e.g. 1600x900)
-      3. landscape-urban-light.jpg          — 1:1  (e.g. 1000x1000)
-      4. commercial-product-campaign.jpg    — 16:9 (e.g. 1600x900)
-      5. lifestyle-natural-light.jpg        — 4:3  (e.g. 1200x900)
-      6. wedding-reception-moments.jpg      — 4:3  (e.g. 1200x900)
-      7. events-corporate-gallery.jpg       — 4:3  (e.g. 1200x900)
+    REAL PHOTOS: drop your files into an "images/portfolio/" folder next to this HTML file.
+    Each photo must be named "{category}-{number}.jpg", e.g. weddings-1.jpg, weddings-2.jpg, portraits-1.jpg.
+    To control how many photos show per category, edit the GALLERY config near the top of the
+    <script> at the bottom of this file (search for "GALLERY CONFIG"). Just change the "count"
+    number for each category — no other code changes needed. Missing files show an elegant
+    placeholder instead, so the site never breaks while you're still adding photos. Any photo
+    shape works; the gallery automatically arranges each one at its real aspect ratio.
   -->
-  <div class="portfolio-grid">
-    <div class="p-item" data-category="weddings">
-      <div class="p-item-inner">
-        <img class="p-photo" src="images/portfolio/wedding-golden-hour-ceremony.jpg" alt="Golden hour wedding ceremony" loading="lazy" onerror="this.style.display='none'">
-        <svg class="photo-icon" viewBox="0 0 48 48" fill="none" stroke="rgba(201,169,110,0.4)" stroke-width="1.5">
-          <rect x="4" y="10" width="40" height="28" rx="2"/>
-          <circle cx="24" cy="24" r="8"/>
-          <circle cx="36" cy="16" r="2" fill="rgba(201,169,110,0.4)"/>
-        </svg>
-      </div>
-      <div class="p-overlay">
-        <div class="p-overlay-text">
-          <p>Wedding</p>
-          <h3>Golden Hour Ceremony</h3>
-        </div>
-      </div>
-    </div>
-    <div class="p-item" data-category="portraits">
-      <div class="p-item-inner">
-        <img class="p-photo" src="images/portfolio/portrait-studio-series.jpg" alt="Studio portrait session" loading="lazy" onerror="this.style.display='none'">
-        <svg class="photo-icon" viewBox="0 0 48 48" fill="none" stroke="rgba(201,169,110,0.4)" stroke-width="1.5">
-          <circle cx="24" cy="18" r="8"/><path d="M8 40c0-8.837 7.163-16 16-16s16 7.163 16 16"/>
-        </svg>
-      </div>
-      <div class="p-overlay">
-        <div class="p-overlay-text"><p>Portrait</p><h3>Studio Series</h3></div>
-      </div>
-    </div>
-    <div class="p-item" data-category="commercial">
-      <div class="p-item-inner">
-        <img class="p-photo" src="images/portfolio/landscape-urban-light.jpg" alt="Urban light landscape photography" loading="lazy" onerror="this.style.display='none'">
-        <svg class="photo-icon" viewBox="0 0 48 48" fill="none" stroke="rgba(201,169,110,0.4)" stroke-width="1.5">
-          <path d="M6 36L18 20l8 10 6-8 10 14"/>
-          <circle cx="34" cy="14" r="4"/>
-        </svg>
-      </div>
-      <div class="p-overlay">
-        <div class="p-overlay-text"><p>Landscape</p><h3>Urban Light</h3></div>
-      </div>
-    </div>
-    <div class="p-item" data-category="commercial">
-      <div class="p-item-inner">
-        <img class="p-photo" src="images/portfolio/commercial-product-campaign.jpg" alt="Commercial product campaign photography" loading="lazy" onerror="this.style.display='none'">
-        <svg class="photo-icon" viewBox="0 0 48 48" fill="none" stroke="rgba(201,169,110,0.4)" stroke-width="1.5">
-          <rect x="8" y="14" width="32" height="22" rx="1"/>
-          <path d="M16 14v-4h16v4"/>
-          <circle cx="24" cy="25" r="6"/>
-        </svg>
-      </div>
-      <div class="p-overlay">
-        <div class="p-overlay-text"><p>Commercial</p><h3>Product Campaign</h3></div>
-      </div>
-    </div>
-    <div class="p-item" data-category="lifestyle">
-      <div class="p-item-inner">
-        <img class="p-photo" src="images/portfolio/lifestyle-natural-light.jpg" alt="Natural light lifestyle photography" loading="lazy" onerror="this.style.display='none'">
-        <svg class="photo-icon" viewBox="0 0 48 48" fill="none" stroke="rgba(201,169,110,0.4)" stroke-width="1.5">
-          <path d="M24 6v8M24 34v8M6 24h8M34 24h8"/>
-          <circle cx="24" cy="24" r="10"/>
-          <circle cx="24" cy="24" r="4" fill="rgba(201,169,110,0.2)"/>
-        </svg>
-      </div>
-      <div class="p-overlay">
-        <div class="p-overlay-text"><p>Lifestyle</p><h3>Natural Light</h3></div>
-      </div>
-    </div>
-    <div class="p-item" data-category="weddings">
-      <div class="p-item-inner">
-        <img class="p-photo" src="images/portfolio/wedding-reception-moments.jpg" alt="Wedding reception moments" loading="lazy" onerror="this.style.display='none'">
-        <svg class="photo-icon" viewBox="0 0 48 48" fill="none" stroke="rgba(201,169,110,0.4)" stroke-width="1.5">
-          <path d="M12 36c6-10 18-10 24 0"/><circle cx="20" cy="22" r="5"/><circle cx="30" cy="22" r="5"/>
-        </svg>
-      </div>
-      <div class="p-overlay">
-        <div class="p-overlay-text"><p>Wedding</p><h3>Reception Moments</h3></div>
-      </div>
-    </div>
-    <div class="p-item" data-category="events">
-      <div class="p-item-inner">
-        <img class="p-photo" src="images/portfolio/events-corporate-gallery.jpg" alt="Corporate event gallery photography" loading="lazy" onerror="this.style.display='none'">
-        <svg class="photo-icon" viewBox="0 0 48 48" fill="none" stroke="rgba(201,169,110,0.4)" stroke-width="1.5">
-          <rect x="4" y="10" width="40" height="28" rx="2"/>
-          <path d="M14 28l6-8 6 7 4-5 6 6"/>
-        </svg>
-      </div>
-      <div class="p-overlay">
-        <div class="p-overlay-text"><p>Events</p><h3>Corporate Gallery</h3></div>
-      </div>
-    </div>
-  </div>
+  <div class="portfolio-grid" id="portfolioGrid"></div>
 </section>
 
 <!-- SERVICES -->
@@ -1136,7 +1082,7 @@
     <p style="color: var(--muted); font-size: 0.9rem; max-width: 480px; margin: 0 auto 2.5rem;">
       From a sneak peek within 48 hours to your final print-ready downloads — see exactly how your gallery reaches you.
     </p>
-    <a href="client-portal.html" class="btn-outline">See the Full Process</a>
+    <a href="delivery.html" class="btn-outline">See the Full Process</a>
   </div>
 </section>
 
@@ -1297,7 +1243,10 @@
           <div class="price-note">Estimate only — final quote confirmed after checking your date and location.</div>
         </div>
 
-        <button type="submit" class="btn-primary" style="align-self: flex-start; border: none; font-family: var(--sans);">Send Booking Request via WhatsApp</button>
+        <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+          <button type="submit" class="btn-primary" style="border: none; font-family: var(--sans);">Send via WhatsApp</button>
+          <button type="button" id="sendEmailBtn" class="btn-outline" style="font-family: var(--sans);">Send via Email</button>
+        </div>
       </form>
     </div>
   </div>
@@ -1309,11 +1258,17 @@
   <div class="footer-links">
     <a href="#portfolio">Portfolio</a>
     <a href="#services">Services</a>
+    <a href="about.html">About</a>
+    <a href="delivery.html">Client Delivery</a>
     <a href="#contact">Contact</a>
   </div>
 </footer>
 
 <a href="#contact" class="sticky-book-btn" id="stickyBookBtn">Book Now</a>
+
+<button class="scroll-top-btn" id="scrollTopBtn" aria-label="Scroll to top">
+  <svg viewBox="0 0 24 24"><polyline points="18 15 12 9 6 15"/></svg>
+</button>
 
 <script>
 // Sticky mobile Book Now button
@@ -1327,16 +1282,68 @@ window.addEventListener("scroll", () => {
   stickyBookBtn.classList.toggle("visible", pastHero && !inContactView);
 });
 
+// Scroll to top button
+const scrollTopBtn = document.getElementById("scrollTopBtn");
+
+window.addEventListener("scroll", () => {
+  scrollTopBtn.classList.toggle("visible", window.scrollY > window.innerHeight * 0.6);
+});
+
+scrollTopBtn.addEventListener("click", () => {
+  window.scrollTo({ top: 0, behavior: "smooth" });
+});
+
+// ============ GALLERY CONFIG — set how many photos you have per category ============
+// Photos must be named "{category}-{number}.jpg" and live in images/portfolio/
+// e.g. weddings-1.jpg, weddings-2.jpg, portraits-1.jpg …
+// To add/remove photos, just change the "count" number below — nothing else to edit.
+const GALLERY = [
+  { category: "weddings",   label: "Wedding",    count: 2 },
+  { category: "portraits",  label: "Portrait",   count: 1 },
+  { category: "commercial", label: "Commercial", count: 2 },
+  { category: "lifestyle",  label: "Lifestyle",  count: 1 },
+  { category: "events",     label: "Events",     count: 1 }
+];
+// ======================================================================================
+
+function buildGallery() {
+  const grid = document.getElementById("portfolioGrid");
+  let html = "";
+  GALLERY.forEach(cat => {
+    for (let i = 1; i <= cat.count; i++) {
+      const src = `images/portfolio/${cat.category}-${i}.jpg`;
+      html += `
+        <div class="p-item" data-category="${cat.category}">
+          <div class="p-item-inner">
+            <img class="p-photo" src="${src}" alt="${cat.label} photo ${i}" loading="lazy"
+                 onload="this.parentElement.style.aspectRatio = this.naturalWidth + '/' + this.naturalHeight;"
+                 onerror="this.style.display='none';">
+            <svg class="photo-icon" viewBox="0 0 48 48" fill="none" stroke="rgba(201,169,110,0.4)" stroke-width="1.5">
+              <rect x="4" y="10" width="40" height="28" rx="2"/>
+              <circle cx="24" cy="24" r="8"/>
+              <circle cx="36" cy="16" r="2" fill="rgba(201,169,110,0.4)"/>
+            </svg>
+          </div>
+          <div class="p-overlay">
+            <div class="p-overlay-text"><p>${cat.label}</p><h3>Photo ${i}</h3></div>
+          </div>
+        </div>`;
+    }
+  });
+  grid.innerHTML = html;
+}
+
+buildGallery();
+
 // Portfolio category filter
 const filterTabs = document.querySelectorAll(".category-tabs .tab");
-const portfolioItems = document.querySelectorAll(".p-item");
 
 filterTabs.forEach(tab => {
   tab.addEventListener("click", () => {
     filterTabs.forEach(t => t.classList.remove("active"));
     tab.classList.add("active");
     const filter = tab.dataset.filter;
-    portfolioItems.forEach(item => {
+    document.querySelectorAll(".p-item").forEach(item => {
       item.style.display = (filter === "all" || item.dataset.category === filter) ? "" : "none";
     });
   });
@@ -1419,11 +1426,13 @@ document.getElementById("daysMinus").addEventListener("click", () => {
   state.days = Math.max(1, state.days - 1);
   document.getElementById("daysCount").textContent = state.days;
   updatePrice();
+  saveFormDraft();
 });
 document.getElementById("daysPlus").addEventListener("click", () => {
   state.days = state.days + 1;
   document.getElementById("daysCount").textContent = state.days;
   updatePrice();
+  saveFormDraft();
 });
 
 // Photographer stepper
@@ -1431,11 +1440,13 @@ document.getElementById("photogMinus").addEventListener("click", () => {
   state.photographers = Math.max(1, state.photographers - 1);
   document.getElementById("photogCount").textContent = state.photographers;
   updatePrice();
+  saveFormDraft();
 });
 document.getElementById("photogPlus").addEventListener("click", () => {
   state.photographers = Math.min(8, state.photographers + 1);
   document.getElementById("photogCount").textContent = state.photographers;
   updatePrice();
+  saveFormDraft();
 });
 
 // Videographer toggle
@@ -1446,6 +1457,7 @@ document.querySelectorAll("#videoToggle .toggle-btn").forEach(btn => {
     state.videographer = btn.dataset.video === "yes";
     document.getElementById("videoCountWrap").classList.toggle("visible", state.videographer);
     updatePrice();
+    saveFormDraft();
   });
 });
 
@@ -1454,23 +1466,93 @@ document.getElementById("videoMinus").addEventListener("click", () => {
   state.videoCount = Math.max(1, state.videoCount - 1);
   document.getElementById("videoCount").textContent = state.videoCount;
   updatePrice();
+  saveFormDraft();
 });
 document.getElementById("videoPlus").addEventListener("click", () => {
   state.videoCount = Math.min(4, state.videoCount + 1);
   document.getElementById("videoCount").textContent = state.videoCount;
   updatePrice();
+  saveFormDraft();
 });
 
-document.getElementById("serviceType").addEventListener("change", updatePrice);
-document.getElementById("eventDate").addEventListener("change", updatePrice);
+document.getElementById("serviceType").addEventListener("change", () => { updatePrice(); saveFormDraft(); });
+document.getElementById("eventDate").addEventListener("change", saveFormDraft);
+
+// Save draft as the person types in any text field (debounced slightly via 'input')
+["firstName", "lastName", "email", "clientPhone", "projectDetails"].forEach(id => {
+  document.getElementById(id).addEventListener("input", saveFormDraft);
+});
+
+// ============ BOOKING DRAFT — auto-saves progress so it's not lost if the client
+// clicks away (e.g. to Client Delivery) and comes back. Clears itself once they
+// actually send the request, and clears automatically when the browser tab closes. ============
+const DRAFT_KEY = "fp_booking_draft";
+
+function saveFormDraft() {
+  try {
+    const draft = {
+      firstName: document.getElementById("firstName").value,
+      lastName: document.getElementById("lastName").value,
+      email: document.getElementById("email").value,
+      clientPhone: document.getElementById("clientPhone").value,
+      serviceType: document.getElementById("serviceType").value,
+      eventDate: document.getElementById("eventDate").value,
+      projectDetails: document.getElementById("projectDetails").value,
+      state: state
+    };
+    sessionStorage.setItem(DRAFT_KEY, JSON.stringify(draft));
+  } catch (err) {
+    // Storage unavailable (private browsing, etc.) — fail silently, form still works.
+  }
+}
+
+function loadFormDraft() {
+  let draft;
+  try {
+    const raw = sessionStorage.getItem(DRAFT_KEY);
+    if (!raw) return;
+    draft = JSON.parse(raw);
+  } catch (err) {
+    return;
+  }
+
+  document.getElementById("firstName").value = draft.firstName || "";
+  document.getElementById("lastName").value = draft.lastName || "";
+  document.getElementById("email").value = draft.email || "";
+  document.getElementById("clientPhone").value = draft.clientPhone || "";
+  if (draft.serviceType) document.getElementById("serviceType").value = draft.serviceType;
+  document.getElementById("eventDate").value = draft.eventDate || "";
+  document.getElementById("projectDetails").value = draft.projectDetails || "";
+
+  if (draft.state) {
+    state.days = draft.state.days || 1;
+    state.photographers = draft.state.photographers || 1;
+    state.videographer = !!draft.state.videographer;
+    state.videoCount = draft.state.videoCount || 1;
+
+    document.getElementById("daysCount").textContent = state.days;
+    document.getElementById("photogCount").textContent = state.photographers;
+    document.getElementById("videoCount").textContent = state.videoCount;
+
+    document.querySelectorAll("#videoToggle .toggle-btn").forEach(btn => {
+      btn.classList.toggle("active", (btn.dataset.video === "yes") === state.videographer);
+    });
+    document.getElementById("videoCountWrap").classList.toggle("visible", state.videographer);
+  }
+}
+
+function clearFormDraft() {
+  try { sessionStorage.removeItem(DRAFT_KEY); } catch (err) {}
+}
+
+// Restore any saved draft, then render prices from it
+loadFormDraft();
 
 // Initial render
 updatePrice();
 
-// Submit -> WhatsApp
-document.getElementById("bookingForm").addEventListener("submit", function (e) {
-  e.preventDefault();
-
+// Build booking message from current form state (shared by WhatsApp + Email)
+function buildBookingMessage() {
   const fname = document.getElementById("firstName").value;
   const lname = document.getElementById("lastName").value;
   const email = document.getElementById("email").value;
@@ -1495,11 +1577,36 @@ document.getElementById("bookingForm").addEventListener("submit", function (e) {
     `Details: ${details}`
   ];
 
-  const fullMessage = lines.join("\n");
+  return { fullMessage: lines.join("\n"), fname, lname, serviceLabel };
+}
+
+// Submit -> WhatsApp
+document.getElementById("bookingForm").addEventListener("submit", function (e) {
+  e.preventDefault();
+
+  const { fullMessage } = buildBookingMessage();
   const phone = "8801935128454"; // YOUR NUMBER (no +)
   const url = `https://wa.me/${phone}?text=${encodeURIComponent(fullMessage)}`;
 
   window.open(url, "_blank");
+  clearFormDraft();
+});
+
+// Send via Email
+document.getElementById("sendEmailBtn").addEventListener("click", function () {
+  const { fullMessage, fname, lname, serviceLabel } = buildBookingMessage();
+  const yourEmail = "mdfarhanshahriar07@gmail.com"; // YOUR EMAIL
+  const subject = `Booking Request — ${serviceLabel} (${fname} ${lname})`;
+
+  // Gmail web compose — works in any browser, no default mail app required.
+  const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(yourEmail)}&su=${encodeURIComponent(subject)}&body=${encodeURIComponent(fullMessage)}`;
+  const newTab = window.open(gmailUrl, "_blank");
+
+  // Fallback for popup blockers or environments without a browser tab (rare): try mailto too.
+  if (!newTab) {
+    window.location.href = `mailto:${yourEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(fullMessage)}`;
+  }
+  clearFormDraft();
 });
 </script>
 </body>
