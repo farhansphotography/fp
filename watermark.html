@@ -37,6 +37,32 @@
   }
   .nav-back:hover{ color:var(--gold); }
 
+  /* LOCK SCREEN */
+  #lock{
+    min-height:calc(100vh - 68px); display:flex; align-items:center; justify-content:center;
+    padding:2rem 1.2rem;
+  }
+  .lock-card{
+    width:100%; max-width:380px; background:var(--dark-2);
+    border:1px solid rgba(201,169,110,0.12); padding:2.6rem 2.2rem; text-align:center;
+  }
+  .lock-eyebrow{
+    font-size:0.68rem; letter-spacing:0.28em; text-transform:uppercase; color:var(--gold);
+    margin-bottom:0.7rem;
+  }
+  .lock-title{ font-family:var(--serif); font-size:1.7rem; font-weight:300; margin-bottom:0.5rem; }
+  .lock-sub{ font-size:0.82rem; color:var(--muted); margin-bottom:1.6rem; }
+  .form-group{ margin-bottom:1rem; text-align:left; }
+  .form-input{
+    width:100%; padding:0.8rem 1rem; background:var(--dark-3);
+    border:1px solid rgba(201,169,110,0.15); color:var(--text);
+    font-family:var(--sans); font-size:0.9rem; outline:none; transition:border-color .3s;
+  }
+  .form-input:focus{ border-color:var(--gold); }
+  .lock-err{
+    margin-top:0.9rem; font-size:0.78rem; color:var(--error); display:none; line-height:1.5;
+  }
+
   main{
     max-width:1200px; margin:0 auto; padding:2.5rem 2rem 5rem;
     display:grid; grid-template-columns:minmax(0,1fr) minmax(300px,380px);
@@ -167,7 +193,21 @@
   <a href="index.html" class="nav-back">← Back to Site</a>
 </nav>
 
-<main>
+<div id="lock">
+  <div class="lock-card">
+    <p class="lock-eyebrow">Private Tool</p>
+    <h1 class="lock-title">Watermark Tool</h1>
+    <p class="lock-sub">Enter the password to continue.</p>
+    <div class="form-group" style="position:relative;">
+      <input type="password" class="form-input" id="lockPassword" placeholder="••••••••" autocomplete="off" style="padding-right:2.6rem;">
+      <button type="button" id="togglePw" aria-label="Show password" style="position:absolute; right:0.3rem; top:50%; transform:translateY(-50%); background:transparent; border:none; color:var(--muted); cursor:pointer; padding:0.4rem 0.5rem; font-size:1rem; line-height:1;">👁</button>
+    </div>
+    <button class="btn-primary" id="lockBtn">Unlock</button>
+    <p class="lock-err" id="lockErr"></p>
+  </div>
+</div>
+
+<main id="mainApp" style="display:none;">
   <div>
     <h1>Watermark Tool</h1>
     <p class="sub">Add a text or logo watermark to your photos, right in the browser — nothing uploads anywhere.</p>
@@ -259,6 +299,51 @@
 <script>
 (() => {
   const $ = s => document.querySelector(s);
+
+  // ---------- password gate ----------
+  // Change this to your own password. This is a simple client-side gate (fine for
+  // keeping casual visitors out) — not real security, since the password ships in the page source.
+  const PASSWORD = '@Farhan19@';
+  const LOCK_KEY = 'fp_watermark_unlocked';
+
+  function unlock() {
+    $('#lock').style.display = 'none';
+    $('#mainApp').style.display = 'grid';
+    initApp();
+  }
+
+  function tryUnlock() {
+    const val = $('#lockPassword').value;
+    const err = $('#lockErr');
+    if (val === PASSWORD) {
+      try { localStorage.setItem(LOCK_KEY, '1'); } catch (e) {}
+      err.style.display = 'none';
+      unlock();
+    } else {
+      err.textContent = 'Incorrect password.';
+      err.style.display = 'block';
+    }
+  }
+
+  $('#lockBtn').addEventListener('click', tryUnlock);
+  $('#lockPassword').addEventListener('keydown', e => { if (e.key === 'Enter') tryUnlock(); });
+
+  $('#togglePw').addEventListener('click', () => {
+    const pw = $('#lockPassword');
+    const btn = $('#togglePw');
+    const showing = pw.type === 'text';
+    pw.type = showing ? 'password' : 'text';
+    btn.textContent = showing ? '👁' : '🙈';
+    btn.setAttribute('aria-label', showing ? 'Show password' : 'Hide password');
+    pw.focus();
+  });
+
+  let already = false;
+  try { already = localStorage.getItem(LOCK_KEY) === '1'; } catch (e) {}
+  if (already) { unlock(); return; }
+
+  // everything below only runs after unlock(), via initApp()
+  function initApp() {
   const dropZone = $('#dropZone'), fileInput = $('#fileInput'), cv = $('#cv'), ctx = cv.getContext('2d');
   const stageActions = $('#stageActions'), changeImgBtn = $('#changeImg'), downloadBtn = $('#downloadBtn');
 
@@ -528,6 +613,7 @@
       toast('ok', 'Downloaded.');
     }, 'image/png');
   });
+  } // end initApp
 })();
 </script>
 </body>
