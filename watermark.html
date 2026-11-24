@@ -123,6 +123,19 @@
     width:100%; accent-color:var(--gold); background:transparent;
   }
 
+  .slider-row{ display:flex; align-items:center; gap:0.6rem; }
+  .slider-row input[type=range]{ flex:1; }
+  .num-in{
+    width:60px; flex:none; padding:0.35rem 0.3rem; background:var(--dark-3);
+    border:1px solid rgba(201,169,110,0.15); color:var(--gold-light);
+    font-family:var(--sans); font-size:0.8rem; text-align:center; outline:none;
+    transition:border-color .2s; -moz-appearance:textfield;
+  }
+  .num-in:focus{ border-color:var(--gold); }
+  .num-in::-webkit-outer-spin-button, .num-in::-webkit-inner-spin-button{
+    -webkit-appearance:none; margin:0;
+  }
+
   .mode-toggle{ display:flex; gap:0; margin-bottom:1.2rem; border:1px solid rgba(201,169,110,0.2); }
   .mode-toggle button{
     flex:1; padding:0.6rem; background:transparent; border:none; color:var(--muted);
@@ -220,11 +233,172 @@
         <input type="file" id="fileInput" accept="image/*">
       </div>
       <canvas id="cv" style="display:none;"></canvas>
+      <div id="captionBlock" style="display:none; width:100%; margin-top:1rem;">
+        <div class="chk-row" style="margin-bottom:0.6rem;">
+          <input type="checkbox" id="sendWithCaption" checked>
+          <label for="sendWithCaption">Send with caption</label>
+        </div>
+        <label style="display:block; font-size:0.72rem; letter-spacing:0.08em; text-transform:uppercase; color:var(--muted); margin-bottom:0.5rem;">Caption (sent with Share)</label>
+        <textarea id="shareCaption" class="fi" rows="5" style="width:100%; resize:vertical; font-family:var(--sans); line-height:1.6;"></textarea>
+      </div>
       <div class="stage-actions" id="stageActions" style="display:none;">
         <button class="btn-secondary" id="changeImg" style="flex:1;">Change Photo</button>
+        <button class="btn-secondary" id="shareBtn" style="flex:1;">Share</button>
         <button class="btn-primary" id="downloadBtn" style="flex:1;">Download Watermarked</button>
       </div>
     </div>
+  </div>
+
+  <div>
+  <div class="panel" style="margin-bottom:1.5rem; position:static;">
+    <h2>Adjust Photo</h2>
+
+    <div class="fr">
+      <label>Brightness</label>
+      <div class="slider-row">
+        <input type="range" id="edBrightness" min="-100" max="100" value="0">
+        <input type="number" class="num-in" id="brightVal" min="-100" max="100" value="0">
+      </div>
+    </div>
+
+    <div class="fr">
+      <label>Contrast</label>
+      <div class="slider-row">
+        <input type="range" id="edContrast" min="-100" max="100" value="0">
+        <input type="number" class="num-in" id="contrastVal" min="-100" max="100" value="0">
+      </div>
+    </div>
+
+    <div class="fr">
+      <label>Saturation</label>
+      <div class="slider-row">
+        <input type="range" id="edSaturation" min="-100" max="100" value="0">
+        <input type="number" class="num-in" id="satVal" min="-100" max="100" value="0">
+      </div>
+    </div>
+
+    <div class="fr">
+      <label>Warmth</label>
+      <div class="slider-row">
+        <input type="range" id="edWarmth" min="-100" max="100" value="0">
+        <input type="number" class="num-in" id="warmthVal" min="-100" max="100" value="0">
+      </div>
+    </div>
+
+    <div class="fr">
+      <label>Sharpen</label>
+      <div class="slider-row">
+        <input type="range" id="edSharpen" min="0" max="100" value="0">
+        <input type="number" class="num-in" id="sharpenVal" min="0" max="100" value="0">
+      </div>
+    </div>
+
+    <div class="fr">
+      <label>Vignette</label>
+      <div class="slider-row">
+        <input type="range" id="edVignette" min="0" max="100" value="0">
+        <input type="number" class="num-in" id="vignetteVal" min="0" max="100" value="0">
+      </div>
+    </div>
+
+    <div class="fr">
+      <label>Blur (Soft Focus)</label>
+      <div class="slider-row">
+        <input type="range" id="edBlur" min="0" max="20" value="0">
+        <input type="number" class="num-in" id="blurVal" min="0" max="20" value="0">
+      </div>
+    </div>
+
+    <div class="fr">
+      <label>Black &amp; White</label>
+      <div class="slider-row">
+        <input type="range" id="edGrayscale" min="0" max="100" value="0">
+        <input type="number" class="num-in" id="grayscaleVal" min="0" max="100" value="0">
+      </div>
+    </div>
+
+    <div class="fr">
+      <label>Hue Shift</label>
+      <div class="slider-row">
+        <input type="range" id="edHue" min="-180" max="180" value="0">
+        <input type="number" class="num-in" id="hueVal" min="-180" max="180" value="0">
+      </div>
+    </div>
+
+    <div class="fr">
+      <label>Tint (Green ↔ Magenta)</label>
+      <div class="slider-row">
+        <input type="range" id="edTint" min="-100" max="100" value="0">
+        <input type="number" class="num-in" id="tintVal" min="-100" max="100" value="0">
+      </div>
+    </div>
+
+    <div class="fr">
+      <label>Fade</label>
+      <div class="slider-row">
+        <input type="range" id="edFade" min="0" max="100" value="0">
+        <input type="number" class="num-in" id="fadeVal" min="0" max="100" value="0">
+      </div>
+    </div>
+
+    <div class="fr">
+      <label>Grain</label>
+      <div class="slider-row">
+        <input type="range" id="edGrain" min="0" max="100" value="0">
+        <input type="number" class="num-in" id="grainVal" min="0" max="100" value="0">
+      </div>
+    </div>
+
+    <div class="fr">
+      <label>Highlights</label>
+      <div class="slider-row">
+        <input type="range" id="edHighlights" min="-100" max="100" value="0">
+        <input type="number" class="num-in" id="highlightsVal" min="-100" max="100" value="0">
+      </div>
+    </div>
+
+    <div class="fr">
+      <label>Shadows</label>
+      <div class="slider-row">
+        <input type="range" id="edShadows" min="-100" max="100" value="0">
+        <input type="number" class="num-in" id="shadowsVal" min="-100" max="100" value="0">
+      </div>
+    </div>
+
+    <div class="fr">
+      <label>Vibrance</label>
+      <div class="slider-row">
+        <input type="range" id="edVibrance" min="-100" max="100" value="0">
+        <input type="number" class="num-in" id="vibranceVal" min="-100" max="100" value="0">
+      </div>
+    </div>
+
+    <div class="fr">
+      <label>Sepia</label>
+      <div class="slider-row">
+        <input type="range" id="edSepia" min="0" max="100" value="0">
+        <input type="number" class="num-in" id="sepiaVal" min="0" max="100" value="0">
+      </div>
+    </div>
+
+    <div class="chk-row">
+      <input type="checkbox" id="edInvert">
+      <label for="edInvert">Invert Colors</label>
+    </div>
+
+    <div class="fr" style="margin-bottom:0.7rem;">
+      <label>Rotate &amp; Flip</label>
+      <div style="display:flex; gap:0.5rem;">
+        <button class="btn-secondary" id="rotateLeft" style="flex:1; padding:0.6rem;">⟲ 90°</button>
+        <button class="btn-secondary" id="rotateRight" style="flex:1; padding:0.6rem;">⟳ 90°</button>
+      </div>
+    </div>
+    <div style="display:flex; gap:0.5rem; margin-bottom:0.3rem;">
+      <button class="btn-secondary" id="flipH" style="flex:1; padding:0.6rem;">⇋ Flip H</button>
+      <button class="btn-secondary" id="flipV" style="flex:1; padding:0.6rem;">⇵ Flip V</button>
+    </div>
+
+    <button class="btn-secondary" id="resetEdits" style="margin-top:0.9rem;">Reset Adjustments</button>
   </div>
 
   <div class="panel">
@@ -258,18 +432,27 @@
     </div>
 
     <div class="fr">
-      <label>Size <span class="val" id="sizeVal">6%</span></label>
-      <input type="range" id="wmSize" min="2" max="30" value="6">
+      <label>Size</label>
+      <div class="slider-row">
+        <input type="range" id="wmSize" min="2" max="30" value="6">
+        <input type="number" class="num-in" id="sizeVal" min="2" max="30" value="6">
+      </div>
     </div>
 
     <div class="fr">
-      <label>Opacity <span class="val" id="opVal">55%</span></label>
-      <input type="range" id="wmOpacity" min="5" max="100" value="55">
+      <label>Opacity</label>
+      <div class="slider-row">
+        <input type="range" id="wmOpacity" min="5" max="100" value="55">
+        <input type="number" class="num-in" id="opVal" min="5" max="100" value="55">
+      </div>
     </div>
 
     <div class="fr">
-      <label>Rotation <span class="val" id="rotVal">0°</span></label>
-      <input type="range" id="wmRotation" min="-45" max="45" value="0">
+      <label>Rotation</label>
+      <div class="slider-row">
+        <input type="range" id="wmRotation" min="-45" max="45" value="0">
+        <input type="number" class="num-in" id="rotVal" min="-45" max="45" value="0">
+      </div>
     </div>
 
     <div class="chk-row">
@@ -288,9 +471,13 @@
     </div>
 
     <div class="fr">
-      <label>Margin <span class="val" id="marginVal">4%</span></label>
-      <input type="range" id="wmMargin" min="0" max="15" value="4">
+      <label>Margin</label>
+      <div class="slider-row">
+        <input type="range" id="wmMargin" min="-15" max="15" value="4">
+        <input type="number" class="num-in" id="marginVal" min="-15" max="15" value="4">
+      </div>
     </div>
+  </div>
   </div>
 </main>
 
@@ -345,7 +532,33 @@
   // everything below only runs after unlock(), via initApp()
   function initApp() {
   const dropZone = $('#dropZone'), fileInput = $('#fileInput'), cv = $('#cv'), ctx = cv.getContext('2d');
-  const stageActions = $('#stageActions'), changeImgBtn = $('#changeImg'), downloadBtn = $('#downloadBtn');
+  const stageActions = $('#stageActions'), changeImgBtn = $('#changeImg'), downloadBtn = $('#downloadBtn'), shareBtn = $('#shareBtn');
+  const captionBlock = $('#captionBlock'), shareCaption = $('#shareCaption'), sendWithCaption = $('#sendWithCaption');
+
+  function updateCaptionEnabled() {
+    shareCaption.disabled = !sendWithCaption.checked;
+    shareCaption.style.opacity = sendWithCaption.checked ? '1' : '0.4';
+  }
+  sendWithCaption.addEventListener('change', updateCaptionEnabled);
+
+  const DEFAULT_CAPTION =
+`📸 Captured with love by Farhan's Photography!
+
+Thank you for letting us be part of your moment. If you'd like more photos like this, or want to book a session, I'd love to hear from you 🌸
+
+💬 WhatsApp: +8801935128454
+🌐 Website: https://farhansphotography.github.io/fp/
+🗂️ Portfolio: https://mdfarhanshahriar.github.io/mdfarhanshahriar.07/
+📘 Facebook: https://www.facebook.com/MDFarhanShahriar.07
+📷 Instagram: https://www.instagram.com/MDFarhanShahriar.07
+
+— Farhan's Photography, "Framed With Love"`;
+
+  function resetCaption() {
+    shareCaption.value = DEFAULT_CAPTION;
+    sendWithCaption.checked = true;
+    updateCaptionEnabled();
+  }
 
   // Path to the standing watermark file on the server. Change this if you move the file.
   const DEFAULT_LOGO_PATH = 'images/watermark.png';
@@ -369,6 +582,150 @@
     probe.src = DEFAULT_LOGO_PATH;
   }
   loadDefaultLogo();
+
+  // ---------- basic photo adjustments state ----------
+  let baseW = 0, baseH = 0; // natural image dimensions, unaffected by rotation
+  const edit = {
+    brightness: 0, contrast: 0, saturation: 0, warmth: 0,
+    sharpen: 0, vignette: 0, blur: 0, grayscale: 0,
+    hue: 0, tint: 0, fade: 0, grain: 0,
+    highlights: 0, shadows: 0, vibrance: 0, sepia: 0, invert: false,
+    rotateDeg: 0,       // 0, 90, 180, 270
+    flipH: false, flipV: false
+  };
+
+  function buildFilterString() {
+    const b = 100 + edit.brightness;
+    const c = 100 + edit.contrast;
+    const s = Math.max(0, 100 + edit.saturation + edit.vibrance * 0.5);
+    let warm = '';
+    if (edit.warmth > 0) {
+      warm = `sepia(${(edit.warmth / 100 * 0.35).toFixed(2)}) saturate(${100 + edit.warmth * 0.2}%)`;
+    } else if (edit.warmth < 0) {
+      warm = `hue-rotate(${(edit.warmth / 100 * 25).toFixed(1)}deg)`;
+    }
+    const blur = edit.blur > 0 ? `blur(${(edit.blur / 20 * 4).toFixed(2)}px)` : '';
+    const gray = edit.grayscale > 0 ? `grayscale(${edit.grayscale}%)` : '';
+    const hue = edit.hue !== 0 ? `hue-rotate(${edit.hue}deg)` : '';
+    const sepia = edit.sepia > 0 ? `sepia(${edit.sepia}%)` : '';
+    const invert = edit.invert ? 'invert(100%)' : '';
+    return `brightness(${b}%) contrast(${c}%) saturate(${s}%) ${warm} ${blur} ${gray} ${hue} ${sepia} ${invert}`.trim();
+  }
+
+  function applyHighlightsShadows(highlights, shadows) {
+    if (highlights === 0 && shadows === 0) return;
+    ctx.save();
+    if (highlights > 0) {
+      ctx.globalAlpha = Math.min(0.5, highlights / 100 * 0.5);
+      ctx.globalCompositeOperation = 'screen';
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, W, H);
+    } else if (highlights < 0) {
+      ctx.globalAlpha = Math.min(0.5, -highlights / 100 * 0.5);
+      ctx.globalCompositeOperation = 'multiply';
+      ctx.fillStyle = '#b8b8b8';
+      ctx.fillRect(0, 0, W, H);
+    }
+    if (shadows > 0) {
+      ctx.globalAlpha = Math.min(0.45, shadows / 100 * 0.45);
+      ctx.globalCompositeOperation = 'screen';
+      ctx.fillStyle = '#4a4a4a';
+      ctx.fillRect(0, 0, W, H);
+    } else if (shadows < 0) {
+      ctx.globalAlpha = Math.min(0.45, -shadows / 100 * 0.45);
+      ctx.globalCompositeOperation = 'multiply';
+      ctx.fillStyle = '#2a2a2a';
+      ctx.fillRect(0, 0, W, H);
+    }
+    ctx.restore();
+  }
+
+  function applyTint(amount) {
+    if (amount === 0) return;
+    ctx.save();
+    ctx.globalAlpha = Math.min(0.5, Math.abs(amount) / 100 * 0.5);
+    ctx.globalCompositeOperation = 'overlay';
+    ctx.fillStyle = amount > 0 ? '#e35fd1' /* magenta */ : '#5fd17a' /* green */;
+    ctx.fillRect(0, 0, W, H);
+    ctx.restore();
+  }
+
+  function applyFade(amount) {
+    if (amount <= 0) return;
+    const strength = amount / 100;
+    ctx.save();
+    ctx.globalAlpha = strength * 0.35;
+    ctx.globalCompositeOperation = 'lighten';
+    ctx.fillStyle = '#9a9488';
+    ctx.fillRect(0, 0, W, H);
+    ctx.globalAlpha = strength * 0.18;
+    ctx.globalCompositeOperation = 'multiply';
+    ctx.fillStyle = '#d8d2c4';
+    ctx.fillRect(0, 0, W, H);
+    ctx.restore();
+  }
+
+  let grainTile = null;
+  function getGrainTile() {
+    if (grainTile) return grainTile;
+    const size = 128;
+    const t = document.createElement('canvas');
+    t.width = size; t.height = size;
+    const tctx = t.getContext('2d');
+    const imgData = tctx.createImageData(size, size);
+    for (let i = 0; i < imgData.data.length; i += 4) {
+      const v = Math.floor(Math.random() * 255);
+      imgData.data[i] = v; imgData.data[i + 1] = v; imgData.data[i + 2] = v;
+      imgData.data[i + 3] = 255;
+    }
+    tctx.putImageData(imgData, 0, 0);
+    grainTile = t;
+    return t;
+  }
+
+  function applyGrain(amount) {
+    if (amount <= 0) return;
+    const tile = getGrainTile();
+    const pattern = ctx.createPattern(tile, 'repeat');
+    ctx.save();
+    ctx.globalAlpha = Math.min(0.6, amount / 100 * 0.6);
+    ctx.globalCompositeOperation = 'overlay';
+    ctx.fillStyle = pattern;
+    ctx.fillRect(0, 0, W, H);
+    ctx.restore();
+  }
+
+  // Cheap local-contrast "sharpen": re-draw the photo over itself with an
+  // 'overlay' blend at low opacity. Not a true unsharp mask, but boosts edge
+  // contrast and reads as added sharpness/clarity without heavy per-pixel math.
+  function applySharpen(amount) {
+    if (amount <= 0) return;
+    ctx.save();
+    ctx.globalAlpha = Math.min(0.9, amount / 100);
+    ctx.globalCompositeOperation = 'overlay';
+    ctx.drawImage(cv, 0, 0);
+    ctx.restore();
+  }
+
+  function applyVignette(amount) {
+    if (amount <= 0) return;
+    const strength = amount / 100;
+    const cx = W / 2, cy = H / 2;
+    const outerR = Math.sqrt(cx * cx + cy * cy);
+    const grad = ctx.createRadialGradient(cx, cy, outerR * (1 - strength * 0.6), cx, cy, outerR);
+    grad.addColorStop(0, 'rgba(0,0,0,0)');
+    grad.addColorStop(1, `rgba(0,0,0,${0.15 + strength * 0.65})`);
+    ctx.save();
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, W, H);
+    ctx.restore();
+  }
+
+  function recalcCanvasSize() {
+    if (edit.rotateDeg % 180 === 0) { W = baseW; H = baseH; }
+    else { W = baseH; H = baseW; }
+    cv.width = W; cv.height = H;
+  }
 
   const st = {
     mode: 'logo',
@@ -401,11 +758,16 @@
       const image = new Image();
       image.onload = () => {
         img = image;
-        W = img.naturalWidth; H = img.naturalHeight;
-        cv.width = W; cv.height = H;
+        baseW = img.naturalWidth; baseH = img.naturalHeight;
+        edit.brightness = 0; edit.contrast = 0; edit.saturation = 0; edit.warmth = 0;
+        edit.rotateDeg = 0; edit.flipH = false; edit.flipV = false;
+        resetEditControls();
+        recalcCanvasSize();
         cv.style.display = 'block';
         dropZone.style.display = 'none';
         stageActions.style.display = 'flex';
+        captionBlock.style.display = 'block';
+        resetCaption();
         st.dragX = null; st.dragY = null;
         draw();
       };
@@ -428,6 +790,7 @@
     cv.style.display = 'none';
     dropZone.style.display = 'flex';
     stageActions.style.display = 'none';
+    captionBlock.style.display = 'none';
     fileInput.value = '';
   });
 
@@ -465,10 +828,91 @@
   // ---------- controls ----------
   $('#wmText').addEventListener('input', e => { st.text = e.target.value; draw(); });
   $('#wmColor').addEventListener('input', e => { st.color = e.target.value; draw(); });
-  $('#wmSize').addEventListener('input', e => { st.size = +e.target.value; $('#sizeVal').textContent = st.size + '%'; draw(); });
-  $('#wmOpacity').addEventListener('input', e => { st.opacity = +e.target.value; $('#opVal').textContent = st.opacity + '%'; draw(); });
-  $('#wmRotation').addEventListener('input', e => { st.rotation = +e.target.value; $('#rotVal').textContent = st.rotation + '°'; draw(); });
-  $('#wmMargin').addEventListener('input', e => { st.margin = +e.target.value; $('#marginVal').textContent = st.margin + '%'; draw(); });
+  // ---------- link a slider + a number box so each one drives the other ----------
+  function linkPair(sliderId, numId, onChange) {
+    const slider = $(sliderId), num = $(numId);
+    const min = +slider.min, max = +slider.max;
+    const clamp = v => Math.min(max, Math.max(min, v));
+    const apply = v => { slider.value = v; num.value = v; onChange(v); draw(); };
+    slider.addEventListener('input', e => apply(+e.target.value));
+    num.addEventListener('input', e => {
+      if (e.target.value === '' || e.target.value === '-') return; // mid-typing, don't snap yet
+      apply(clamp(+e.target.value));
+    });
+    num.addEventListener('blur', () => { if (num.value === '' || isNaN(+num.value)) apply(+slider.value); });
+    num.addEventListener('keydown', e => { if (e.key === 'Enter') num.blur(); });
+    return apply;
+  }
+
+  linkPair('#wmSize', '#sizeVal', v => { st.size = v; });
+  linkPair('#wmOpacity', '#opVal', v => { st.opacity = v; });
+  linkPair('#wmRotation', '#rotVal', v => { st.rotation = v; });
+  linkPair('#wmMargin', '#marginVal', v => { st.margin = v; });
+
+  // ---------- photo adjustment controls ----------
+  function resetEditControls() {
+    $('#edBrightness').value = 0; $('#brightVal').value = 0;
+    $('#edContrast').value = 0; $('#contrastVal').value = 0;
+    $('#edSaturation').value = 0; $('#satVal').value = 0;
+    $('#edWarmth').value = 0; $('#warmthVal').value = 0;
+    $('#edSharpen').value = 0; $('#sharpenVal').value = 0;
+    $('#edVignette').value = 0; $('#vignetteVal').value = 0;
+    $('#edBlur').value = 0; $('#blurVal').value = 0;
+    $('#edGrayscale').value = 0; $('#grayscaleVal').value = 0;
+    $('#edHue').value = 0; $('#hueVal').value = 0;
+    $('#edTint').value = 0; $('#tintVal').value = 0;
+    $('#edFade').value = 0; $('#fadeVal').value = 0;
+    $('#edGrain').value = 0; $('#grainVal').value = 0;
+    $('#edHighlights').value = 0; $('#highlightsVal').value = 0;
+    $('#edShadows').value = 0; $('#shadowsVal').value = 0;
+    $('#edVibrance').value = 0; $('#vibranceVal').value = 0;
+    $('#edSepia').value = 0; $('#sepiaVal').value = 0;
+    $('#edInvert').checked = false;
+  }
+
+  linkPair('#edBrightness', '#brightVal', v => { edit.brightness = v; });
+  linkPair('#edContrast', '#contrastVal', v => { edit.contrast = v; });
+  linkPair('#edSaturation', '#satVal', v => { edit.saturation = v; });
+  linkPair('#edWarmth', '#warmthVal', v => { edit.warmth = v; });
+  linkPair('#edSharpen', '#sharpenVal', v => { edit.sharpen = v; });
+  linkPair('#edVignette', '#vignetteVal', v => { edit.vignette = v; });
+  linkPair('#edBlur', '#blurVal', v => { edit.blur = v; });
+  linkPair('#edGrayscale', '#grayscaleVal', v => { edit.grayscale = v; });
+  linkPair('#edHue', '#hueVal', v => { edit.hue = v; });
+  linkPair('#edTint', '#tintVal', v => { edit.tint = v; });
+  linkPair('#edFade', '#fadeVal', v => { edit.fade = v; });
+  linkPair('#edGrain', '#grainVal', v => { edit.grain = v; });
+  linkPair('#edHighlights', '#highlightsVal', v => { edit.highlights = v; });
+  linkPair('#edShadows', '#shadowsVal', v => { edit.shadows = v; });
+  linkPair('#edVibrance', '#vibranceVal', v => { edit.vibrance = v; });
+  linkPair('#edSepia', '#sepiaVal', v => { edit.sepia = v; });
+  $('#edInvert').addEventListener('change', e => { edit.invert = e.target.checked; draw(); });
+
+  $('#rotateLeft').addEventListener('click', () => {
+    if (!img) return;
+    edit.rotateDeg = (edit.rotateDeg - 90 + 360) % 360;
+    recalcCanvasSize(); st.dragX = null; st.dragY = null; draw();
+  });
+  $('#rotateRight').addEventListener('click', () => {
+    if (!img) return;
+    edit.rotateDeg = (edit.rotateDeg + 90) % 360;
+    recalcCanvasSize(); st.dragX = null; st.dragY = null; draw();
+  });
+  $('#flipH').addEventListener('click', () => { if (!img) return; edit.flipH = !edit.flipH; draw(); });
+  $('#flipV').addEventListener('click', () => { if (!img) return; edit.flipV = !edit.flipV; draw(); });
+
+  $('#resetEdits').addEventListener('click', () => {
+    if (!img) return;
+    edit.brightness = 0; edit.contrast = 0; edit.saturation = 0; edit.warmth = 0;
+    edit.sharpen = 0; edit.vignette = 0; edit.blur = 0; edit.grayscale = 0;
+    edit.hue = 0; edit.tint = 0; edit.fade = 0; edit.grain = 0;
+    edit.highlights = 0; edit.shadows = 0; edit.vibrance = 0; edit.sepia = 0; edit.invert = false;
+    edit.rotateDeg = 0; edit.flipH = false; edit.flipV = false;
+    resetEditControls();
+    recalcCanvasSize();
+    draw();
+    toast('ok', 'Adjustments reset.');
+  });
   $('#wmTile').addEventListener('change', e => {
     st.tile = e.target.checked;
     $('#positionBlock').style.opacity = st.tile ? 0.4 : 1;
@@ -536,7 +980,23 @@
   function draw() {
     if (!img) return;
     ctx.clearRect(0, 0, W, H);
-    ctx.drawImage(img, 0, 0, W, H);
+
+    ctx.save();
+    ctx.filter = buildFilterString();
+    ctx.translate(W / 2, H / 2);
+    ctx.rotate(edit.rotateDeg * Math.PI / 180);
+    ctx.scale(edit.flipH ? -1 : 1, edit.flipV ? -1 : 1);
+    ctx.drawImage(img, -baseW / 2, -baseH / 2, baseW, baseH);
+    ctx.restore();
+    ctx.filter = 'none'; // watermark/logo should never inherit the photo filter
+
+    applySharpen(edit.sharpen);
+    applyHighlightsShadows(edit.highlights, edit.shadows);
+    applyFade(edit.fade);
+    applyTint(edit.tint);
+    applyGrain(edit.grain);
+    applyVignette(edit.vignette);
+
     if (st.mode === 'logo' && !logoImg) {
       ctx.save();
       ctx.fillStyle = 'rgba(0,0,0,0.45)';
@@ -599,15 +1059,57 @@
   cv.addEventListener('pointercancel', endDrag);
 
   // ---------- download ----------
+  function watermarkedFileName() {
+    const d = new Date();
+    const pad = n => String(n).padStart(2, '0');
+    return `watermarked-${d.getFullYear()}${pad(d.getMonth()+1)}${pad(d.getDate())}-${pad(d.getHours())}${pad(d.getMinutes())}.png`;
+  }
+
+  shareBtn.addEventListener('click', () => {
+    if (!img) return;
+    cv.toBlob(async blob => {
+      if (!blob) { toast('err', 'Could not create the image.'); return; }
+      const file = new File([blob], watermarkedFileName(), { type: 'image/png' });
+
+      const caption = sendWithCaption.checked ? shareCaption.value.trim() : '';
+      const shareData = { files: [file], title: "Farhan's Photography" };
+      if (caption) shareData.text = caption;
+
+      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        try {
+          await navigator.share(shareData);
+          toast('ok', 'Shared.');
+        } catch (err) {
+          if (err.name !== 'AbortError') toast('err', 'Could not share — try downloading instead.');
+        }
+        return;
+      }
+
+      // Some browsers support text-only sharing without files
+      if (navigator.share) {
+        try {
+          const { files, ...textOnly } = shareData;
+          await navigator.share(textOnly);
+        } catch (err) { /* ignore cancel */ }
+      }
+
+      // Fallback for browsers without Web Share / file-sharing support
+      // (most desktop browsers): open the image in a new tab so the user
+      // can long-press / right-click to save or share it manually.
+      const url = URL.createObjectURL(blob);
+      window.open(url, '_blank');
+      setTimeout(() => URL.revokeObjectURL(url), 30000);
+      toast('ok', 'Opened in a new tab — share from there, or use Download.');
+    }, 'image/png');
+  });
+
   downloadBtn.addEventListener('click', () => {
     if (!img) return;
     cv.toBlob(blob => {
       if (!blob) { toast('err', 'Could not create the image.'); return; }
       const a = document.createElement('a');
-      const d = new Date();
-      const pad = n => String(n).padStart(2, '0');
       a.href = URL.createObjectURL(blob);
-      a.download = `watermarked-${d.getFullYear()}${pad(d.getMonth()+1)}${pad(d.getDate())}-${pad(d.getHours())}${pad(d.getMinutes())}.png`;
+      a.download = watermarkedFileName();
       a.click();
       setTimeout(() => URL.revokeObjectURL(a.href), 2000);
       toast('ok', 'Downloaded.');
