@@ -197,6 +197,43 @@
   .toast.err{ color:var(--error); border-color:rgba(217,122,110,0.3); }
 
   .hint{ font-size:0.72rem; color:var(--muted); margin-top:0.4rem; line-height:1.5; }
+
+  /* ---- pro-grade panel tabs ---- */
+  .panel-tabs{
+    display:flex; gap:0; margin-bottom:1.3rem; border-bottom:1px solid rgba(201,169,110,0.15);
+  }
+  .panel-tabs button{
+    flex:1; padding:0.75rem 0.4rem; background:transparent; border:none; cursor:pointer;
+    font-family:var(--sans); font-size:0.7rem; letter-spacing:0.1em; text-transform:uppercase;
+    color:var(--muted); border-bottom:2px solid transparent; transition:all .2s; margin-bottom:-1px;
+  }
+  .panel-tabs button:hover{ color:var(--gold-light); }
+  .panel-tabs button.active{ color:var(--gold); border-bottom-color:var(--gold); }
+  .panel-pane{ display:none; }
+  .panel-pane.active{ display:block; }
+
+  /* ---- collapsible adjustment groups ---- */
+  .fgroup{
+    border:1px solid rgba(201,169,110,0.12); margin-bottom:0.8rem; background:rgba(255,255,255,0.012);
+  }
+  .fgroup > summary{
+    list-style:none; cursor:pointer; padding:0.75rem 0.9rem; display:flex;
+    align-items:center; justify-content:space-between; user-select:none;
+    font-family:var(--sans); font-size:0.78rem; letter-spacing:0.07em; text-transform:uppercase;
+    color:var(--gold-light); transition:background .2s;
+  }
+  .fgroup > summary::-webkit-details-marker{ display:none; }
+  .fgroup > summary:hover{ background:rgba(201,169,110,0.05); }
+  .fgroup > summary .g-icon{ color:var(--gold); margin-right:0.55rem; font-size:0.9rem; }
+  .fgroup > summary .g-chev{ color:var(--muted); font-size:0.7rem; transition:transform .25s; }
+  .fgroup[open] > summary .g-chev{ transform:rotate(90deg); }
+  .fgroup-body{ padding:1rem 0.9rem 0.2rem; }
+  .fgroup[open]{ border-color:rgba(201,169,110,0.22); }
+
+  .panel-section-title{
+    font-size:0.68rem; letter-spacing:0.2em; text-transform:uppercase; color:var(--muted);
+    margin:0 0 0.8rem;
+  }
 </style>
 </head>
 <body>
@@ -233,14 +270,6 @@
         <input type="file" id="fileInput" accept="image/*">
       </div>
       <canvas id="cv" style="display:none;"></canvas>
-      <div id="captionBlock" style="display:none; width:100%; margin-top:1rem;">
-        <div class="chk-row" style="margin-bottom:0.6rem;">
-          <input type="checkbox" id="sendWithCaption" checked>
-          <label for="sendWithCaption">Send with caption</label>
-        </div>
-        <label style="display:block; font-size:0.72rem; letter-spacing:0.08em; text-transform:uppercase; color:var(--muted); margin-bottom:0.5rem;">Caption (sent with Share)</label>
-        <textarea id="shareCaption" class="fi" rows="5" style="width:100%; resize:vertical; font-family:var(--sans); line-height:1.6;"></textarea>
-      </div>
       <div class="stage-actions" id="stageActions" style="display:none;">
         <button class="btn-secondary" id="changeImg" style="flex:1;">Change Photo</button>
         <button class="btn-secondary" id="shareBtn" style="flex:1;">Share</button>
@@ -250,233 +279,264 @@
   </div>
 
   <div>
-  <div class="panel" style="margin-bottom:1.5rem; position:static;">
-    <h2>Adjust Photo</h2>
-
-    <div class="fr">
-      <label>Brightness</label>
-      <div class="slider-row">
-        <input type="range" id="edBrightness" min="-100" max="100" value="0">
-        <input type="number" class="num-in" id="brightVal" min="-100" max="100" value="0">
-      </div>
-    </div>
-
-    <div class="fr">
-      <label>Contrast</label>
-      <div class="slider-row">
-        <input type="range" id="edContrast" min="-100" max="100" value="0">
-        <input type="number" class="num-in" id="contrastVal" min="-100" max="100" value="0">
-      </div>
-    </div>
-
-    <div class="fr">
-      <label>Saturation</label>
-      <div class="slider-row">
-        <input type="range" id="edSaturation" min="-100" max="100" value="0">
-        <input type="number" class="num-in" id="satVal" min="-100" max="100" value="0">
-      </div>
-    </div>
-
-    <div class="fr">
-      <label>Warmth</label>
-      <div class="slider-row">
-        <input type="range" id="edWarmth" min="-100" max="100" value="0">
-        <input type="number" class="num-in" id="warmthVal" min="-100" max="100" value="0">
-      </div>
-    </div>
-
-    <div class="fr">
-      <label>Sharpen</label>
-      <div class="slider-row">
-        <input type="range" id="edSharpen" min="0" max="100" value="0">
-        <input type="number" class="num-in" id="sharpenVal" min="0" max="100" value="0">
-      </div>
-    </div>
-
-    <div class="fr">
-      <label>Vignette</label>
-      <div class="slider-row">
-        <input type="range" id="edVignette" min="0" max="100" value="0">
-        <input type="number" class="num-in" id="vignetteVal" min="0" max="100" value="0">
-      </div>
-    </div>
-
-    <div class="fr">
-      <label>Blur (Soft Focus)</label>
-      <div class="slider-row">
-        <input type="range" id="edBlur" min="0" max="20" value="0">
-        <input type="number" class="num-in" id="blurVal" min="0" max="20" value="0">
-      </div>
-    </div>
-
-    <div class="fr">
-      <label>Black &amp; White</label>
-      <div class="slider-row">
-        <input type="range" id="edGrayscale" min="0" max="100" value="0">
-        <input type="number" class="num-in" id="grayscaleVal" min="0" max="100" value="0">
-      </div>
-    </div>
-
-    <div class="fr">
-      <label>Hue Shift</label>
-      <div class="slider-row">
-        <input type="range" id="edHue" min="-180" max="180" value="0">
-        <input type="number" class="num-in" id="hueVal" min="-180" max="180" value="0">
-      </div>
-    </div>
-
-    <div class="fr">
-      <label>Tint (Green ↔ Magenta)</label>
-      <div class="slider-row">
-        <input type="range" id="edTint" min="-100" max="100" value="0">
-        <input type="number" class="num-in" id="tintVal" min="-100" max="100" value="0">
-      </div>
-    </div>
-
-    <div class="fr">
-      <label>Fade</label>
-      <div class="slider-row">
-        <input type="range" id="edFade" min="0" max="100" value="0">
-        <input type="number" class="num-in" id="fadeVal" min="0" max="100" value="0">
-      </div>
-    </div>
-
-    <div class="fr">
-      <label>Grain</label>
-      <div class="slider-row">
-        <input type="range" id="edGrain" min="0" max="100" value="0">
-        <input type="number" class="num-in" id="grainVal" min="0" max="100" value="0">
-      </div>
-    </div>
-
-    <div class="fr">
-      <label>Highlights</label>
-      <div class="slider-row">
-        <input type="range" id="edHighlights" min="-100" max="100" value="0">
-        <input type="number" class="num-in" id="highlightsVal" min="-100" max="100" value="0">
-      </div>
-    </div>
-
-    <div class="fr">
-      <label>Shadows</label>
-      <div class="slider-row">
-        <input type="range" id="edShadows" min="-100" max="100" value="0">
-        <input type="number" class="num-in" id="shadowsVal" min="-100" max="100" value="0">
-      </div>
-    </div>
-
-    <div class="fr">
-      <label>Vibrance</label>
-      <div class="slider-row">
-        <input type="range" id="edVibrance" min="-100" max="100" value="0">
-        <input type="number" class="num-in" id="vibranceVal" min="-100" max="100" value="0">
-      </div>
-    </div>
-
-    <div class="fr">
-      <label>Sepia</label>
-      <div class="slider-row">
-        <input type="range" id="edSepia" min="0" max="100" value="0">
-        <input type="number" class="num-in" id="sepiaVal" min="0" max="100" value="0">
-      </div>
-    </div>
-
-    <div class="chk-row">
-      <input type="checkbox" id="edInvert">
-      <label for="edInvert">Invert Colors</label>
-    </div>
-
-    <div class="fr" style="margin-bottom:0.7rem;">
-      <label>Rotate &amp; Flip</label>
-      <div style="display:flex; gap:0.5rem;">
-        <button class="btn-secondary" id="rotateLeft" style="flex:1; padding:0.6rem;">⟲ 90°</button>
-        <button class="btn-secondary" id="rotateRight" style="flex:1; padding:0.6rem;">⟳ 90°</button>
-      </div>
-    </div>
-    <div style="display:flex; gap:0.5rem; margin-bottom:0.3rem;">
-      <button class="btn-secondary" id="flipH" style="flex:1; padding:0.6rem;">⇋ Flip H</button>
-      <button class="btn-secondary" id="flipV" style="flex:1; padding:0.6rem;">⇵ Flip V</button>
-    </div>
-
-    <button class="btn-secondary" id="resetEdits" style="margin-top:0.9rem;">Reset Adjustments</button>
-  </div>
-
   <div class="panel">
-    <h2>Watermark</h2>
-
-    <div class="mode-toggle">
-      <button id="modeLogo" class="active">Logo Image</button>
-      <button id="modeText">Text</button>
+    <div class="panel-tabs">
+      <button class="ptab active" data-pane="paneAdjust">Adjust</button>
+      <button class="ptab" data-pane="paneWatermark">Watermark</button>
+      <button class="ptab" data-pane="paneShare">Share</button>
     </div>
 
-    <div id="logoControls">
-      <div class="fr">
-        <label>Watermark Logo <span class="val" id="logoSourceTag"></span></label>
-        <div id="logoPreviewWrap" style="margin-bottom:0.6rem;">
-          <img id="logoPreview" style="max-width:100%; max-height:70px; display:block; background:repeating-conic-gradient(#2a2a2a 0% 25%, #1a1a1a 0% 50%) 50% / 14px 14px;">
+    <!-- ===== ADJUST ===== -->
+    <div class="panel-pane active" id="paneAdjust">
+
+      <details class="fgroup" open>
+        <summary><span><span class="g-icon">◐</span>Light</span><span class="g-chev">▸</span></summary>
+        <div class="fgroup-body">
+          <div class="fr">
+            <label>Brightness</label>
+            <div class="slider-row">
+              <input type="range" id="edBrightness" min="-100" max="100" value="0">
+              <input type="number" class="num-in" id="brightVal" min="-100" max="100" value="0">
+            </div>
+          </div>
+          <div class="fr">
+            <label>Contrast</label>
+            <div class="slider-row">
+              <input type="range" id="edContrast" min="-100" max="100" value="0">
+              <input type="number" class="num-in" id="contrastVal" min="-100" max="100" value="0">
+            </div>
+          </div>
+          <div class="fr">
+            <label>Highlights</label>
+            <div class="slider-row">
+              <input type="range" id="edHighlights" min="-100" max="100" value="0">
+              <input type="number" class="num-in" id="highlightsVal" min="-100" max="100" value="0">
+            </div>
+          </div>
+          <div class="fr" style="margin-bottom:0;">
+            <label>Shadows</label>
+            <div class="slider-row">
+              <input type="range" id="edShadows" min="-100" max="100" value="0">
+              <input type="number" class="num-in" id="shadowsVal" min="-100" max="100" value="0">
+            </div>
+          </div>
         </div>
-        <input type="file" class="fi" id="logoInput" accept="image/*">
-        <p class="hint" id="logoHint">Loading watermark.png from the server…</p>
-      </div>
+      </details>
+
+      <details class="fgroup">
+        <summary><span><span class="g-icon">◑</span>Color</span><span class="g-chev">▸</span></summary>
+        <div class="fgroup-body">
+          <div class="fr">
+            <label>Saturation</label>
+            <div class="slider-row">
+              <input type="range" id="edSaturation" min="-100" max="100" value="0">
+              <input type="number" class="num-in" id="satVal" min="-100" max="100" value="0">
+            </div>
+          </div>
+          <div class="fr">
+            <label>Vibrance</label>
+            <div class="slider-row">
+              <input type="range" id="edVibrance" min="-100" max="100" value="0">
+              <input type="number" class="num-in" id="vibranceVal" min="-100" max="100" value="0">
+            </div>
+          </div>
+          <div class="fr">
+            <label>Warmth</label>
+            <div class="slider-row">
+              <input type="range" id="edWarmth" min="-100" max="100" value="0">
+              <input type="number" class="num-in" id="warmthVal" min="-100" max="100" value="0">
+            </div>
+          </div>
+          <div class="fr">
+            <label>Tint (Green ↔ Magenta)</label>
+            <div class="slider-row">
+              <input type="range" id="edTint" min="-100" max="100" value="0">
+              <input type="number" class="num-in" id="tintVal" min="-100" max="100" value="0">
+            </div>
+          </div>
+          <div class="fr">
+            <label>Hue Shift</label>
+            <div class="slider-row">
+              <input type="range" id="edHue" min="-180" max="180" value="0">
+              <input type="number" class="num-in" id="hueVal" min="-180" max="180" value="0">
+            </div>
+          </div>
+          <div class="fr">
+            <label>Sepia</label>
+            <div class="slider-row">
+              <input type="range" id="edSepia" min="0" max="100" value="0">
+              <input type="number" class="num-in" id="sepiaVal" min="0" max="100" value="0">
+            </div>
+          </div>
+          <div class="fr">
+            <label>Black &amp; White</label>
+            <div class="slider-row">
+              <input type="range" id="edGrayscale" min="0" max="100" value="0">
+              <input type="number" class="num-in" id="grayscaleVal" min="0" max="100" value="0">
+            </div>
+          </div>
+          <div class="chk-row" style="margin-bottom:0;">
+            <input type="checkbox" id="edInvert">
+            <label for="edInvert">Invert Colors</label>
+          </div>
+        </div>
+      </details>
+
+      <details class="fgroup">
+        <summary><span><span class="g-icon">✦</span>Detail &amp; Effects</span><span class="g-chev">▸</span></summary>
+        <div class="fgroup-body">
+          <div class="fr">
+            <label>Sharpen</label>
+            <div class="slider-row">
+              <input type="range" id="edSharpen" min="0" max="100" value="0">
+              <input type="number" class="num-in" id="sharpenVal" min="0" max="100" value="0">
+            </div>
+          </div>
+          <div class="fr">
+            <label>Blur (Soft Focus)</label>
+            <div class="slider-row">
+              <input type="range" id="edBlur" min="0" max="20" value="0">
+              <input type="number" class="num-in" id="blurVal" min="0" max="20" value="0">
+            </div>
+          </div>
+          <div class="fr">
+            <label>Vignette</label>
+            <div class="slider-row">
+              <input type="range" id="edVignette" min="0" max="100" value="0">
+              <input type="number" class="num-in" id="vignetteVal" min="0" max="100" value="0">
+            </div>
+          </div>
+          <div class="fr">
+            <label>Fade</label>
+            <div class="slider-row">
+              <input type="range" id="edFade" min="0" max="100" value="0">
+              <input type="number" class="num-in" id="fadeVal" min="0" max="100" value="0">
+            </div>
+          </div>
+          <div class="fr" style="margin-bottom:0;">
+            <label>Grain</label>
+            <div class="slider-row">
+              <input type="range" id="edGrain" min="0" max="100" value="0">
+              <input type="number" class="num-in" id="grainVal" min="0" max="100" value="0">
+            </div>
+          </div>
+        </div>
+      </details>
+
+      <details class="fgroup">
+        <summary><span><span class="g-icon">⟳</span>Transform</span><span class="g-chev">▸</span></summary>
+        <div class="fgroup-body">
+          <div class="fr">
+            <label>Rotate</label>
+            <div style="display:flex; gap:0.5rem;">
+              <button class="btn-secondary" id="rotateLeft" style="flex:1; padding:0.6rem;">⟲ 90°</button>
+              <button class="btn-secondary" id="rotateRight" style="flex:1; padding:0.6rem;">⟳ 90°</button>
+            </div>
+          </div>
+          <div class="fr" style="margin-bottom:0;">
+            <label>Flip</label>
+            <div style="display:flex; gap:0.5rem;">
+              <button class="btn-secondary" id="flipH" style="flex:1; padding:0.6rem;">⇋ Flip H</button>
+              <button class="btn-secondary" id="flipV" style="flex:1; padding:0.6rem;">⇵ Flip V</button>
+            </div>
+          </div>
+        </div>
+      </details>
+
+      <button class="btn-secondary" id="resetEdits" style="margin-top:0.4rem;">Reset Adjustments</button>
     </div>
 
-    <div id="textControls" style="display:none;">
+    <!-- ===== WATERMARK ===== -->
+    <div class="panel-pane" id="paneWatermark">
+      <div class="mode-toggle">
+        <button id="modeLogo" class="active">Logo Image</button>
+        <button id="modeText">Text</button>
+      </div>
+
+      <div id="logoControls">
+        <div class="fr">
+          <label>Watermark Logo <span class="val" id="logoSourceTag"></span></label>
+          <div id="logoPreviewWrap" style="margin-bottom:0.6rem;">
+            <img id="logoPreview" style="max-width:100%; max-height:70px; display:block; background:repeating-conic-gradient(#2a2a2a 0% 25%, #1a1a1a 0% 50%) 50% / 14px 14px;">
+          </div>
+          <input type="file" class="fi" id="logoInput" accept="image/*">
+          <p class="hint" id="logoHint">Loading watermark.png from the server…</p>
+        </div>
+      </div>
+
+      <div id="textControls" style="display:none;">
+        <div class="fr">
+          <label>Watermark Text</label>
+          <input type="text" class="fi" id="wmText" value="Farhan's Photography" maxlength="60">
+        </div>
+        <div class="fr">
+          <label>Text Color</label>
+          <input type="color" class="fi" id="wmColor" value="#f0ece4" style="height:40px; cursor:pointer;">
+        </div>
+      </div>
+
       <div class="fr">
-        <label>Watermark Text</label>
-        <input type="text" class="fi" id="wmText" value="Farhan's Photography" maxlength="60">
+        <label>Size</label>
+        <div class="slider-row">
+          <input type="range" id="wmSize" min="2" max="30" value="6">
+          <input type="number" class="num-in" id="sizeVal" min="2" max="30" value="6">
+        </div>
       </div>
+
       <div class="fr">
-        <label>Text Color</label>
-        <input type="color" class="fi" id="wmColor" value="#f0ece4" style="height:40px; cursor:pointer;">
+        <label>Opacity</label>
+        <div class="slider-row">
+          <input type="range" id="wmOpacity" min="5" max="100" value="55">
+          <input type="number" class="num-in" id="opVal" min="5" max="100" value="55">
+        </div>
+      </div>
+
+      <div class="fr">
+        <label>Rotation</label>
+        <div class="slider-row">
+          <input type="range" id="wmRotation" min="-45" max="45" value="0">
+          <input type="number" class="num-in" id="rotVal" min="-45" max="45" value="0">
+        </div>
+      </div>
+
+      <div class="chk-row">
+        <input type="checkbox" id="wmTile">
+        <label for="wmTile">Tile across whole photo</label>
+      </div>
+
+      <div class="fr" id="positionBlock">
+        <label>Position</label>
+        <div class="pos-grid">
+          <button data-p="tl"></button><button data-p="tc"></button><button data-p="tr"></button>
+          <button data-p="cl"></button><button data-p="cc"></button><button data-p="cr"></button>
+          <button data-p="bl"></button><button data-p="bc" class="active"></button><button data-p="br"></button>
+        </div>
+        <p class="hint">Or drag the watermark directly on the photo.</p>
+      </div>
+
+      <div class="fr" style="margin-bottom:0;">
+        <label>Margin</label>
+        <div class="slider-row">
+          <input type="range" id="wmMargin" min="-15" max="15" value="4">
+          <input type="number" class="num-in" id="marginVal" min="-15" max="15" value="4">
+        </div>
       </div>
     </div>
 
-    <div class="fr">
-      <label>Size</label>
-      <div class="slider-row">
-        <input type="range" id="wmSize" min="2" max="30" value="6">
-        <input type="number" class="num-in" id="sizeVal" min="2" max="30" value="6">
+    <!-- ===== SHARE ===== -->
+    <div class="panel-pane" id="paneShare">
+      <p class="panel-section-title">Caption &amp; sharing</p>
+      <div class="chk-row">
+        <input type="checkbox" id="sendWithCaption" checked>
+        <label for="sendWithCaption">Send with caption</label>
       </div>
+      <div class="fr" style="margin-bottom:0.6rem;">
+        <label>Caption (sent with Share)</label>
+        <textarea id="shareCaption" class="fi" rows="9" style="width:100%; resize:vertical; font-family:var(--sans); line-height:1.6;"></textarea>
+      </div>
+      <p class="hint">Edit the caption freely — it resets to the default whenever you load a new photo.</p>
     </div>
 
-    <div class="fr">
-      <label>Opacity</label>
-      <div class="slider-row">
-        <input type="range" id="wmOpacity" min="5" max="100" value="55">
-        <input type="number" class="num-in" id="opVal" min="5" max="100" value="55">
-      </div>
-    </div>
-
-    <div class="fr">
-      <label>Rotation</label>
-      <div class="slider-row">
-        <input type="range" id="wmRotation" min="-45" max="45" value="0">
-        <input type="number" class="num-in" id="rotVal" min="-45" max="45" value="0">
-      </div>
-    </div>
-
-    <div class="chk-row">
-      <input type="checkbox" id="wmTile">
-      <label for="wmTile">Tile across whole photo</label>
-    </div>
-
-    <div class="fr" id="positionBlock">
-      <label>Position</label>
-      <div class="pos-grid">
-        <button data-p="tl"></button><button data-p="tc"></button><button data-p="tr"></button>
-        <button data-p="cl"></button><button data-p="cc"></button><button data-p="cr"></button>
-        <button data-p="bl"></button><button data-p="bc" class="active"></button><button data-p="br"></button>
-      </div>
-      <p class="hint">Or drag the watermark directly on the photo.</p>
-    </div>
-
-    <div class="fr">
-      <label>Margin</label>
-      <div class="slider-row">
-        <input type="range" id="wmMargin" min="-15" max="15" value="4">
-        <input type="number" class="num-in" id="marginVal" min="-15" max="15" value="4">
-      </div>
-    </div>
   </div>
   </div>
 </main>
@@ -531,9 +591,19 @@
 
   // everything below only runs after unlock(), via initApp()
   function initApp() {
+
+    // ---------- panel tabs ----------
+    document.querySelectorAll('.ptab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('.ptab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.panel-pane').forEach(p => p.classList.remove('active'));
+        tab.classList.add('active');
+        $('#' + tab.dataset.pane).classList.add('active');
+      });
+    });
   const dropZone = $('#dropZone'), fileInput = $('#fileInput'), cv = $('#cv'), ctx = cv.getContext('2d');
   const stageActions = $('#stageActions'), changeImgBtn = $('#changeImg'), downloadBtn = $('#downloadBtn'), shareBtn = $('#shareBtn');
-  const captionBlock = $('#captionBlock'), shareCaption = $('#shareCaption'), sendWithCaption = $('#sendWithCaption');
+  const shareCaption = $('#shareCaption'), sendWithCaption = $('#sendWithCaption');
 
   function updateCaptionEnabled() {
     shareCaption.disabled = !sendWithCaption.checked;
@@ -770,7 +840,6 @@ Thank you for letting us be part of your moment. If you'd like more photos like 
         cv.style.display = 'block';
         dropZone.style.display = 'none';
         stageActions.style.display = 'flex';
-        captionBlock.style.display = 'block';
         resetCaption();
         st.dragX = null; st.dragY = null;
         draw();
@@ -794,7 +863,6 @@ Thank you for letting us be part of your moment. If you'd like more photos like 
     cv.style.display = 'none';
     dropZone.style.display = 'flex';
     stageActions.style.display = 'none';
-    captionBlock.style.display = 'none';
     fileInput.value = '';
   });
 
