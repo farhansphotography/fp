@@ -240,7 +240,10 @@
 
 <nav>
   <a href="index.html" class="nav-logo">Farhan's Photography</a>
-  <a href="index.html" class="nav-back">← Back to Site</a>
+  <div style="display:flex; align-items:center; gap:1.4rem;">
+    <button id="logoutBtn" class="nav-back" style="display:none; background:transparent; border:none; cursor:pointer; font-family:var(--sans);">Log Out</button>
+    <a href="index.html" class="nav-back">← Back to Site</a>
+  </div>
 </nav>
 
 <div id="lock">
@@ -556,8 +559,14 @@
   function unlock() {
     $('#lock').style.display = 'none';
     $('#mainApp').style.display = 'grid';
+    $('#logoutBtn').style.display = 'inline-block';
     initApp();
   }
+
+  $('#logoutBtn').addEventListener('click', () => {
+    try { localStorage.removeItem(LOCK_KEY); } catch (e) {}
+    location.reload();
+  });
 
   function tryUnlock() {
     const val = $('#lockPassword').value;
