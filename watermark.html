@@ -563,7 +563,7 @@ Thank you for letting us be part of your moment. If you'd like more photos like 
   // Path to the standing watermark file on the server. Change this if you move the file.
   const DEFAULT_LOGO_PATH = 'images/watermark.png';
 
-  let img = null, logoImg = null;
+  let img = null, logoImg = null, originalFileName = 'photo';
   let W = 0, H = 0;
 
   function loadDefaultLogo() {
@@ -758,8 +758,12 @@ Thank you for letting us be part of your moment. If you'd like more photos like 
       const image = new Image();
       image.onload = () => {
         img = image;
+        originalFileName = file.name || 'photo';
         baseW = img.naturalWidth; baseH = img.naturalHeight;
         edit.brightness = 0; edit.contrast = 0; edit.saturation = 0; edit.warmth = 0;
+        edit.sharpen = 0; edit.vignette = 0; edit.blur = 0; edit.grayscale = 0;
+        edit.hue = 0; edit.tint = 0; edit.fade = 0; edit.grain = 0;
+        edit.highlights = 0; edit.shadows = 0; edit.vibrance = 0; edit.sepia = 0; edit.invert = false;
         edit.rotateDeg = 0; edit.flipH = false; edit.flipV = false;
         resetEditControls();
         recalcCanvasSize();
@@ -1060,9 +1064,9 @@ Thank you for letting us be part of your moment. If you'd like more photos like 
 
   // ---------- download ----------
   function watermarkedFileName() {
-    const d = new Date();
-    const pad = n => String(n).padStart(2, '0');
-    return `watermarked-${d.getFullYear()}${pad(d.getMonth()+1)}${pad(d.getDate())}-${pad(d.getHours())}${pad(d.getMinutes())}.png`;
+    const base = originalFileName.replace(/\.[^/.]+$/, ''); // strip original extension
+    const safe = base.trim() || 'photo';
+    return `W-${safe}.png`;
   }
 
   shareBtn.addEventListener('click', () => {
