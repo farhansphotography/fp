@@ -7,6 +7,7 @@
 <meta name="robots" content="noindex">
 
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Barlow:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <style>
   *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
 
@@ -234,6 +235,34 @@
     font-size:0.68rem; letter-spacing:0.2em; text-transform:uppercase; color:var(--muted);
     margin:0 0 0.8rem;
   }
+
+  /* ---- bulk watermark ---- */
+  .bulk-card{
+    background:var(--dark-2); border:1px solid rgba(201,169,110,0.12);
+    padding:1.3rem 1.4rem; margin-top:1.3rem;
+  }
+  .bulk-card h2{
+    font-family:var(--serif); font-size:1.1rem; font-weight:400; margin-bottom:0.4rem;
+  }
+  .bulk-list{
+    max-height:220px; overflow-y:auto; margin:1rem 0; border:1px solid rgba(201,169,110,0.1);
+  }
+  .bulk-row{
+    display:flex; align-items:center; gap:0.6rem; padding:0.5rem 0.7rem; font-size:0.78rem;
+    border-bottom:1px solid rgba(201,169,110,0.08);
+  }
+  .bulk-row:last-child{ border-bottom:none; }
+  .bulk-row .bn{ flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; color:var(--text); }
+  .bulk-row .bs{ flex:none; font-size:0.72rem; letter-spacing:0.05em; text-transform:uppercase; }
+  .bulk-row .bs.wait{ color:var(--muted); }
+  .bulk-row .bs.go{ color:var(--gold-light); }
+  .bulk-row .bs.ok{ color:var(--ok); }
+  .bulk-row .bs.err{ color:var(--error); }
+  .bulk-actions{ display:flex; gap:0.6rem; flex-wrap:wrap; }
+  .bulk-progress{
+    height:4px; background:rgba(201,169,110,0.12); margin-top:0.9rem; overflow:hidden;
+  }
+  .bulk-progress-bar{ height:100%; width:0%; background:var(--gold); transition:width .2s; }
 </style>
 </head>
 <body>
@@ -277,6 +306,22 @@
         <button class="btn-secondary" id="changeImg" style="flex:1;">Change Photo</button>
         <button class="btn-secondary" id="shareBtn" style="flex:1;">Share</button>
         <button class="btn-primary" id="downloadBtn" style="flex:1;">Download Watermarked</button>
+      </div>
+    </div>
+
+    <div class="bulk-card">
+      <h2>Bulk Watermark</h2>
+      <p class="hint" style="margin-top:0;">Pick several photos — the current Watermark and Adjust settings are applied to every one, then packed into a ZIP. Manual drag position is ignored for batches; the Position grid is used instead.</p>
+      <div class="fr" style="margin-top:0.9rem;">
+        <input type="file" class="fi" id="bulkInput" accept="image/*" multiple>
+      </div>
+      <div class="bulk-list" id="bulkList" style="display:none;"></div>
+      <div class="bulk-progress" id="bulkProgressWrap" style="display:none;">
+        <div class="bulk-progress-bar" id="bulkProgressBar"></div>
+      </div>
+      <div class="bulk-actions" style="margin-top:1rem;">
+        <button class="btn-primary" id="bulkRunBtn" style="flex:1;" disabled>Watermark All &amp; Download ZIP</button>
+        <button class="btn-secondary" id="bulkClearBtn" style="flex:none; display:none;">Clear</button>
       </div>
     </div>
   </div>
@@ -610,7 +655,9 @@
         $('#' + tab.dataset.pane).classList.add('active');
       });
     });
-  const dropZone = $('#dropZone'), fileInput = $('#fileInput'), cv = $('#cv'), ctx = cv.getContext('2d');
+  const dropZone = $('#dropZone'), fileInput = $('#fileInput');
+  let cv = $('#cv'), ctx = cv.getContext('2d');
+  const previewCv = cv; // the on-screen canvas; bulk rendering temporarily points cv/ctx elsewhere and restores these
   const stageActions = $('#stageActions'), changeImgBtn = $('#changeImg'), downloadBtn = $('#downloadBtn'), shareBtn = $('#shareBtn');
   const shareCaption = $('#shareCaption'), sendWithCaption = $('#sendWithCaption');
 
@@ -1196,6 +1243,160 @@ Thank you for letting us be part of your moment. If you'd like more photos like 
       toast('ok', 'Downloaded.');
     }, 'image/png');
   });
+  // ---------- bulk watermark ----------
+  const bulkInput = $('#bulkInput'), bulkList = $('#bulkList'), bulkRunBtn = $('#bulkRunBtn'),
+        bulkClearBtn = $('#bulkClearBtn'), bulkProgressWrap = $('#bulkProgressWrap'), bulkProgressBar = $('#bulkProgressBar');
+  let bulkFiles = [];
+
+  function renderBulkList() {
+    bulkList.innerHTML = '';
+    bulkFiles.forEach((f, i) => {
+      const row = document.createElement('div');
+      row.className = 'bulk-row';
+      row.innerHTML = `<span class="bn">${f.name}</span><span class="bs wait" id="bulkStatus${i}">Waiting</span>`;
+      bulkList.appendChild(row);
+    });
+    bulkList.style.display = bulkFiles.length ? 'block' : 'none';
+  }
+
+  function setBulkStatus(i, cls, text) {
+    const el = document.getElementById('bulkStatus' + i);
+    if (el) { el.className = 'bs ' + cls; el.textContent = text; }
+  }
+
+  bulkInput.addEventListener('change', e => {
+    bulkFiles = Array.from(e.target.files).filter(f => f.type.startsWith('image/'));
+    renderBulkList();
+    bulkRunBtn.disabled = bulkFiles.length === 0;
+    bulkClearBtn.style.display = bulkFiles.length ? 'inline-block' : 'none';
+  });
+
+  bulkClearBtn.addEventListener('click', () => {
+    bulkFiles = [];
+    bulkInput.value = '';
+    renderBulkList();
+    bulkRunBtn.disabled = true;
+    bulkClearBtn.style.display = 'none';
+    bulkProgressWrap.style.display = 'none';
+    bulkProgressBar.style.width = '0%';
+  });
+
+  // Renders one source image through the exact same watermark + adjustment
+  // pipeline as the single-photo preview (draw()), but onto an offscreen
+  // canvas, so a batch gets identical results to what's configured in the panel.
+  function renderOneForBulk(image) {
+    const off = document.createElement('canvas');
+    const offCtx = off.getContext('2d');
+
+    const prev = { cv, ctx, W, H, img, baseW, baseH, dragX: st.dragX, dragY: st.dragY };
+
+    cv = off; ctx = offCtx;
+    img = image;
+    baseW = image.naturalWidth; baseH = image.naturalHeight;
+    st.dragX = null; st.dragY = null; // batch always uses the Position grid, not a manual drag point
+    recalcCanvasSize(); // uses the shared edit.rotateDeg, sets W/H + off.width/height
+    draw();
+
+    const blob = (() => {
+      // toBlob is async; wrap so we can restore globals immediately after, safely
+      return new Promise(resolve => off.toBlob(b => resolve(b), 'image/png'));
+    })();
+
+    cv = prev.cv; ctx = prev.ctx; W = prev.W; H = prev.H;
+    img = prev.img; baseW = prev.baseW; baseH = prev.baseH;
+    st.dragX = prev.dragX; st.dragY = prev.dragY;
+
+    return blob;
+  }
+
+  function loadImageFromFile(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = e => {
+        const image = new Image();
+        image.onload = () => resolve(image);
+        image.onerror = () => reject(new Error('Could not read ' + file.name));
+        image.src = e.target.result;
+      };
+      reader.onerror = () => reject(new Error('Could not read ' + file.name));
+      reader.readAsDataURL(file);
+    });
+  }
+
+  function bulkOutputName(originalName) {
+    const base = originalName.replace(/\.[^/.]+$/, '').trim() || 'photo';
+    return `W-${base}.png`;
+  }
+
+  bulkRunBtn.addEventListener('click', async () => {
+    if (!bulkFiles.length || typeof JSZip === 'undefined') {
+      if (typeof JSZip === 'undefined') toast('err', 'ZIP library failed to load — check your connection and reload.');
+      return;
+    }
+    if (st.mode === 'logo' && !logoImg) {
+      toast('err', 'Load a watermark logo first (Watermark tab), or switch to Text mode.');
+      return;
+    }
+
+    bulkRunBtn.disabled = true;
+    bulkInput.disabled = true;
+    bulkProgressWrap.style.display = 'block';
+    bulkProgressBar.style.width = '0%';
+
+    const zip = new JSZip();
+    const usedNames = new Set();
+    let done = 0, failed = 0;
+
+    for (let i = 0; i < bulkFiles.length; i++) {
+      const file = bulkFiles[i];
+      setBulkStatus(i, 'go', 'Processing…');
+      try {
+        const image = await loadImageFromFile(file);
+        const blob = await renderOneForBulk(image);
+        if (!blob) throw new Error('No image data produced');
+
+        let name = bulkOutputName(file.name);
+        if (usedNames.has(name)) {
+          let n = 2, candidate;
+          do { candidate = bulkOutputName(file.name).replace(/\.png$/, `-${n}.png`); n++; }
+          while (usedNames.has(candidate));
+          name = candidate;
+        }
+        usedNames.add(name);
+
+        zip.file(name, blob);
+        setBulkStatus(i, 'ok', 'Done');
+        done++;
+      } catch (err) {
+        setBulkStatus(i, 'err', 'Failed');
+        failed++;
+      }
+      bulkProgressBar.style.width = Math.round(((i + 1) / bulkFiles.length) * 100) + '%';
+    }
+
+    if (done === 0) {
+      toast('err', 'Nothing could be processed.');
+      bulkRunBtn.disabled = false;
+      bulkInput.disabled = false;
+      return;
+    }
+
+    try {
+      const content = await zip.generateAsync({ type: 'blob' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(content);
+      a.download = `watermarked-photos-${new Date().toISOString().slice(0,10)}.zip`;
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+      toast('ok', failed ? `Done — ${done} watermarked, ${failed} failed.` : `ZIP downloaded — ${done} photos watermarked.`);
+    } catch (err) {
+      toast('err', 'Could not build the ZIP file.');
+    }
+
+    bulkRunBtn.disabled = false;
+    bulkInput.disabled = false;
+  });
+
   } // end initApp
 })();
 </script>
